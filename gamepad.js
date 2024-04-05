@@ -292,6 +292,7 @@ class GamePad {
     let aId = getEventUid(event);
     let gamepad = GamePad.claimed[aId];
     if (gamepad?.active) {
+      write2log(aid, 1)
       // only supports 2d canvases at the moment
       const rect = gamepad.canvas.getBoundingClientRect();
       let xPxRel = event.clientX - rect.left;
