@@ -148,7 +148,7 @@ class GamePad {
     this.canvas.id = this.id;
     // Fixing Unable to preventDefault inside passive event listener due to target being treated as passive in Chrome [Thanks to https://github.com/artisticfox8 for this suggestion]
     this.canvas.style.touchAction = "none";
-    
+
     // setup array of axis to be controlled. 
     this.axes = [];
 
@@ -238,6 +238,7 @@ class GamePad {
   activate(event) {
     if (event.target == GamePad.GAMEPADS[event.target?.id]?.canvas) {
       GamePad.GAMEPADS[event.target.id].active = true;
+      write2log(`${event.target.id} active`)
     }
     GamePad.GAMEPADS[event.target.id].#registerActive(event);
   }
@@ -256,6 +257,7 @@ class GamePad {
       gamepad = GamePad.claimed[aId];
       gamepad.#releaseActive(event);
       delete GamePad.claimed[aId];
+      write2log(`${aId} inactive`)
     }
     if (gamepad) {
       gamepad.active = false;
