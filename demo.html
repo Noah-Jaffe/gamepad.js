@@ -220,12 +220,12 @@
         const canvasTxtSizePx = 20;
         gamepad.setDrawShapeFunc(function (axesMapping) {
             write2log(`drawcam`,2);
-            write2log({'mode':'cam','w':GamePad.GAMEPADS[gamepad.id].canvas.width, 'h':GamePad.GAMEPADS[gamepad.id].canvas.height},2);
             // the shape for this gamepad will be a circle
             let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
             context.beginPath();
             let centerX = axesMapping[`_rel_pixel_${axisXLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.width;
             let centerY = axesMapping[`_rel_pixel_${axisYLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.height;
+            
             context.arc(centerX, centerY, shapeRadius, 0, Math.PI * 2);
 
             // outline will be solid color
@@ -238,7 +238,7 @@
             context.strokeStyle = "black";
             context.font = `${canvasTxtSizePx}px consolas`;
             context.strokeText(`${axisXLabel}: ${parseInt(axesMapping[axisXLabel])}\n${axisYLabel}: ${parseInt(axesMapping[axisYLabel])}`, 0, canvasTxtSizePx / 2 + 3, GamePad.GAMEPADS[gamepad.id].canvas.width);
-
+            write2log({'mode':'cam','centerX':centerX, 'centerY':centerY, 'a':[axisXLabel, axisYLabel], 'axes':axesMapping},2);
         });
 
         return gamepad.canvas;
