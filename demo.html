@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="HandheldFriendly" content="true" />
     <title>Gamepad.js demo</title>
     <style>
         body,
@@ -151,7 +152,7 @@
 
         // install listeners for most natively triggered events
         for (const key in target) {
-            if (/^on/.test(key) && !key.toString().toLowerCase().includes('transition') && !key.toString().toLowerCase().includes('motion')) {
+            if (/^on/.test(key) && !key.toString().toLowerCase().includes('transition')) {
                 const eventType = key.substr(2);
                 target.addEventListener(eventType, listener, ...otherArguments);
             }
@@ -174,7 +175,7 @@
 
         // install listeners for all natively triggered events
         for (const key in target) {
-            if (/^on/.test(key) && !key.toString().toLowerCase().includes('transition')  && !key.toString().toLowerCase().includes('motion')) {
+            if (/^on/.test(key) && !key.toString().toLowerCase().includes('transition')) {
                 const eventType = key.substr(2);
                 target.addEventListener(eventType, listener, ...otherArguments);
             }
@@ -190,9 +191,10 @@
         if (EventTarget.prototype.dispatchEvent !== dispatchEvent) throw new Error(`Browser is smarter than you think!`);
 
     }
+    const eventsSeen = new Set();
     addEventListenerAll(
         window,
-        (evt) => { write2log(event.type, 2); },
+        (evt) => { if (!eventsSeen.has(event.type)){eventsSeen.add(event.type); write2log(event.type, 5);} },
         true
     );
 </script>
