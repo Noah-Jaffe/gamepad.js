@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamepad.js demo</title>
+  <style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+    #video-background {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+    #controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+    }
+    .gamepad-container {
+        position: relative;
+        margin: 10px;
+    }
+    .gamepad {
+        width: 100px;
+        height: 100px;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #00000000;
+    }
+
+    canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+
+<script src="gamepad.js"></script>
+<script id="onload.js">
+
+    /**
+     * sample func for a functions that generates a new specific type of game pad
+     */
+    function generateCamGamePad(widthPx, heightPx) {
+        // cam uses two axes with ranges of 0-180 that does not snapback
+        let gamepad = new GamePad(widthPx, heightPx);
+        const minBound = 0;
+        const maxBound = 180;
+        const step = null;
+        const snapBackVal = null;
+        const axisXLabel = 'X';
+        const axisYLabel = 'Y';
+        // shape radius will be 15% of whatever the initial canvas size is
+        const shapeRadius = ((widthPx**2 + heightPx **2)**0.5) * 0.15;
+        gamepad.addAxis(axisXLabel, minBound, maxBound, step, snapBackVal);
+        gamepad.addAxis(axisYLabel, minBound, maxBound, step, snapBackVal);
+        gamepad.setUpdateCallback(updateCam);
+        const canvasTxtSizePx = 20;
+        gamepad.setDrawShapeFunc(function(axesMapping) {
+            // the shape for this gamepad will be a circle
+            let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
+            context.beginPath();
+            let centerX = axesMapping[`_rel_pixel_${axisXLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.width;
+            let centerY = axesMapping[`_rel_pixel_${axisYLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.height;
+            context.arc(centerX, centerY, shapeRadius, 0, Math.PI*2);
+            
+            // outline will be solid color
+            context.strokeStyle="#FF0004";
+            // inner color will be transparent of strokestyle 68/255
+            context.fillStyle=`${context.strokeStyle}44`;
+            context.stroke();
+            context.fill();
+            // todo better text label?
+            context.strokeStyle="black";
+            context.font = `${canvasTxtSizePx}px consolas`;
+            context.strokeText(`${axisXLabel}: ${parseInt(axesMapping[axisXLabel])}\n${axisYLabel}: ${parseInt(axesMapping[axisYLabel])}`, 0, canvasTxtSizePx / 2 + 3, GamePad.GAMEPADS[gamepad.id].canvas.width);
+        
+        });
+        
+        return gamepad.canvas;
+    }
+
+    function generateTreadGamePad(widthPx, heightPx) {
+        // treads uses two axes with ranges of -100 to +100 that snapbacks
+        let gamepad = new GamePad(widthPx, heightPx);
+        const minBound = -100;
+        const maxBound = 100;
+        const step = null;
+        const snapBackVal = 0;
+        const axisXLabel = 'L';
+        const axisYLabel = 'A';
+        // shape radius will be 15% of whatever the initial canvas size is
+        const shapeRadius = ((widthPx**2 + heightPx **2)**0.5) * 0.15;
+        gamepad.addAxis(axisXLabel, minBound, maxBound, step, snapBackVal);
+        gamepad.addAxis(axisYLabel, minBound, maxBound, step, snapBackVal);
+        gamepad.setUpdateCallback(updateTreads);
+        const canvasTxtSizePx = 20;
+        gamepad.setDrawShapeFunc(function(axesMapping) {
+            // the shape for this gamepad will be a circle
+            let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
+            context.beginPath();
+            let centerX = axesMapping[`_rel_pixel_${axisXLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.width;
+            let centerY = axesMapping[`_rel_pixel_${axisYLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.height;
+            context.arc(centerX, centerY, shapeRadius, 0, Math.PI*2);
+            
+            // outline will be solid color
+            context.strokeStyle="#FF0004";
+            // inner color will be transparent of strokestyle 68/255
+            context.fillStyle=`${context.strokeStyle}44`;
+            context.stroke();
+            context.fill();
+            // todo better text label?
+            context.strokeStyle="black";
+            context.font = `${canvasTxtSizePx}px consolas`;
+            context.strokeText(`${axisXLabel}: ${parseInt(axesMapping[axisXLabel])}\n${axisYLabel}: ${parseInt(axesMapping[axisYLabel])}`, 0, canvasTxtSizePx / 2 + 3, GamePad.GAMEPADS[gamepad.id].canvas.width);
+        
+        });
+
+        return gamepad.canvas;
+    }
+
+    function generateArmGamePad(widthPx, heightPx, minBound, maxBound, axisLabel) {
+        // arm axis uses three axes with unique ranges that dont snapback
+        let gamepad = new GamePad(widthPx, heightPx);
+        const step = 1;
+        const snapBackVal = null;
+        // shape will be a bar that is the full width of the canvas
+        // x axis is irrelavent so keep to zero width
+        gamepad.addAxis('zero', 0, 0, null, 0);
+        gamepad.addAxis(axisLabel, minBound, maxBound, step, snapBackVal);
+        const shapeRadius = 1.5;
+        gamepad.setUpdateCallback(updateArmLink);
+        const canvasTxtSizePx = 20;
+        gamepad.setDrawShapeFunc(function(axesMapping) {
+            // the shape for this gamepad will be a circle
+            let centerY = axesMapping[`_rel_pixel_${axisLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.height;
+            let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
+            context.fillStyle="#FF0004";
+            context.fillRect(0, centerY-shapeRadius, GamePad.GAMEPADS[gamepad.id].canvas.width, shapeRadius * 2)
+            context.strokeStyle="black";
+            context.font = `${canvasTxtSizePx}px consolas`;
+            context.strokeText(`${parseInt(axesMapping[axisLabel])}`, 0, Math.min(Math.max(centerY, canvasTxtSizePx + 2),GamePad.GAMEPADS[gamepad.id].canvas.height - canvasTxtSizePx + 2), GamePad.GAMEPADS[gamepad.id].canvas.width);
+        });
+        return gamepad.canvas;
+    }
+    
+    /**
+     * sample callback functions
+     */
+    function updateCam(){}
+    function updateArmLink(){}
+    function updateTreads(){}
+
+    /**
+     * sample dynamically generate multiple gamepad objects and add them to the page.
+     */
+    window.onload = function() {
+        // create the GamePads and put the canvas/ui objects into their respective control boxes
+        let treads = document.querySelector('#treadControlsBox');
+        let treadsCanvas = generateTreadGamePad(200, 200);
+        treads.appendChild(treadsCanvas);
+        let cam = document.querySelector('#camControlsBox');
+        let camCanvas = generateCamGamePad(200, 200);
+        cam.appendChild(camCanvas);
+        let arms = document.querySelector('#armControlsBox');
+        let baseCanvas = generateArmGamePad(30, 200,  0, 180, 's7');
+        let linkCanvas = generateArmGamePad(30, 200,  0, 225, 's8');
+        let handCanvas = generateArmGamePad(30, 200, 30, 180, 's9');
+        arms.appendChild(baseCanvas);
+        arms.appendChild(linkCanvas)
+        arms.appendChild(handCanvas);
+
+        // enable move/end interactions by adding the event listeners.
+        GamePad.addDocumentEventListeners();
+
+    };
+
+    // window.addEventListener("load", GamePad.addDocumentEventListeners, false);
+
+</script>
+<body>
+    <video id="video-background" autoplay muted loop>
+        <source src="http://192.168.1.11:6000" type="video/mp4">
+        <!-- theoretically set a video feed as the background of the webpage -->
+        Your browser does not support the video tag.
+    </video>
+    <div id="controls">
+        <!-- A box for us to put our controls that are to be dynamically generated -->
+        <div class="gamepad-container" id="treadControlsBox">
+        </div>
+        <div class="gamepad-container" id="camControlsBox">
+        </div>
+        <div class="gamepad-container" id="armControlsBox">
+        </div>
+    </div>
+</body>
+</html>
