@@ -220,6 +220,7 @@
         const canvasTxtSizePx = 20;
         gamepad.setDrawShapeFunc(function (axesMapping) {
             write2log(`drawcam`,2);
+            write2log({'mode':'cam','w':GamePad.GAMEPADS[gamepad.id].canvas.width, 'h':GamePad.GAMEPADS[gamepad.id].canvas.height},2);
             // the shape for this gamepad will be a circle
             let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
             context.beginPath();
