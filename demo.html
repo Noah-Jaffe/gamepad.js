@@ -219,6 +219,7 @@
         gamepad.setUpdateCallback(updateCam);
         const canvasTxtSizePx = 20;
         gamepad.setDrawShapeFunc(function (axesMapping) {
+            write2log(`drawcam`,2);
             // the shape for this gamepad will be a circle
             let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
             context.beginPath();
@@ -258,6 +259,7 @@
         gamepad.setUpdateCallback(updateTreads);
         const canvasTxtSizePx = 20;
         gamepad.setDrawShapeFunc(function (axesMapping) {
+            write2log(`drawtread`,2);
             // the shape for this gamepad will be a circle
             let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
             context.beginPath();
@@ -294,6 +296,7 @@
         gamepad.setUpdateCallback(updateArmLink);
         const canvasTxtSizePx = 20;
         gamepad.setDrawShapeFunc(function (axesMapping) {
+            write2log(`drawarm`,2);
             // the shape for this gamepad will be a circle
             let centerY = axesMapping[`_rel_pixel_${axisLabel}`] * GamePad.GAMEPADS[gamepad.id].canvas.height;
             let context = GamePad.GAMEPADS[gamepad.id].canvas.getContext('2d');
@@ -309,9 +312,9 @@
     /**
      * sample callback functions
      */
-    function updateCam() { }
-    function updateArmLink() { }
-    function updateTreads() { }
+    function updateCam() { write2log(`updateCam`,2)}
+    function updateArmLink() { write2log(`updateArm`,2)}
+    function updateTreads() { write2log(`updateTread`,2)}
 
     /**
      * sample dynamically generate multiple gamepad objects and add them to the page.
