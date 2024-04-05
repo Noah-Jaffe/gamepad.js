@@ -148,7 +148,6 @@ class GamePad {
     this.canvas.id = this.id;
     // Fixing Unable to preventDefault inside passive event listener due to target being treated as passive in Chrome [Thanks to https://github.com/artisticfox8 for this suggestion]
     this.canvas.style.touchAction = "none";
-
     // setup array of axis to be controlled. 
     this.axes = [];
 
@@ -238,7 +237,6 @@ class GamePad {
   activate(event) {
     if (event.target == GamePad.GAMEPADS[event.target?.id]?.canvas) {
       GamePad.GAMEPADS[event.target.id].active = true;
-      write2log(`${event.target.id} active`)
     }
     GamePad.GAMEPADS[event.target.id].#registerActive(event);
   }
@@ -257,7 +255,6 @@ class GamePad {
       gamepad = GamePad.claimed[aId];
       gamepad.#releaseActive(event);
       delete GamePad.claimed[aId];
-      write2log(`${aId} inactive`)
     }
     if (gamepad) {
       gamepad.active = false;
@@ -292,7 +289,6 @@ class GamePad {
     let aId = getEventUid(event);
     let gamepad = GamePad.claimed[aId];
     if (gamepad?.active) {
-      write2log(aid, 1)
       // only supports 2d canvases at the moment
       const rect = gamepad.canvas.getBoundingClientRect();
       let xPxRel = event.clientX - rect.left;
@@ -326,17 +322,17 @@ class GamePad {
    */
   static addDocumentEventListeners() {
     // when loading the script, enable the features
-    if ("ontouchstart" in document.documentElement) {
+    if ("PointerEvent" in window) {
+        // register pointer events
+        document.documentElement.addEventListener("pointerup", GamePad.deactivate, false);
+        document.documentElement.addEventListener("pointercancel", GamePad.deactivate, false);
+        document.documentElement.addEventListener("pointermove", GamePad.drawAndUpdate, false);
+      } else if ("ontouchstart" in document.documentElement) {
       // register touch events
-      document.addEventListener("touchend", GamePad.deactivate, false);
-      document.addEventListener("touchcancel", GamePad.deactivate, false);
-      document.addEventListener("touchmove", GamePad.drawAndUpdate, false);
-    } else if ("PointerEvent" in window) {
-      // register pointer events
-      document.addEventListener("pointerup", GamePad.deactivate, false);
-      document.addEventListener("pointercancel", GamePad.deactivate, false);
-      document.addEventListener("pointermove", GamePad.drawAndUpdate, false);
-    } 
+      document.documentElement.addEventListener("touchend", GamePad.deactivate, false);
+      document.documentElement.addEventListener("touchcancel", GamePad.deactivate, false);
+      document.documentElement.addEventListener("touchmove", GamePad.drawAndUpdate, false);
+    }
     // todo: do we need to register mouse events or does pointer cover that as well?
   }
 }
